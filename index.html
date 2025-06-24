@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Pocket Option Signal Bot</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      background-color: #0f172a;
+      color: #e2e8f0;
+      font-family: Arial, sans-serif;
+      padding: 1rem;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    .signal-card {
+      background: #1e293b;
+      padding: 1rem;
+      border-radius: 12px;
+      box-shadow: 0 0 12px #334155;
+      margin-bottom: 2rem;
+    }
+    iframe {
+      border: none;
+      width: 100%;
+      height: 400px;
+      border-radius: 12px;
+    }
+    .signal-info {
+      margin-top: 1rem;
+    }
+    .label {
+      font-weight: bold;
+      color: #38bdf8;
+    }
+    .call {
+      color: #22c55e;
+    }
+    .put {
+      color: #ef4444;
+    }
+    .feedback-buttons {
+      margin-top: 1rem;
+    }
+    button {
+      padding: 0.5rem 1rem;
+      margin: 0.5rem;
+      font-size: 1rem;
+      border-radius: 8px;
+      border: none;
+    }
+    .win-btn { background-color: #22c55e; color: white; }
+    .loss-btn { background-color: #ef4444; color: white; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📈 Pocket Option Signal Bot (Web v2)</h1>
+    <div class="signal-card" id="signal-card">
+      <h2 id="pair-title">Loading...</h2>
+      <iframe id="chart-frame" src="" allowfullscreen></iframe>
+      <div class="signal-info" id="signal-info"></div>
+      <div class="feedback-buttons" id="feedback-buttons" style="display:none;">
+        <button class="win-btn" onclick="submitFeedback('win')">✅ Win</button>
+        <button class="loss-btn" onclick="submitFeedback('loss')">❌ Loss</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let lastFeedbackGiven = true;
+    let signalTimer = 300; // 5 minutes
+
+    const chartFrame = document.getElementById('chart-frame');
+    const pairTitle = document.getElementById('pair-title');
+    const signalInfo = document.getElementById('signal-info');
+    const feedbackButtons = document.getElementById('feedback-buttons');
+
+    const currency = "FX:EURUSD";
+
+    function generateSignal() {
+      if (!lastFeedbackGiven) return;
+      lastFeedbackGiven = false;
+
+      const direction = Math.random() > 0.5 ? 'CALL (Buy)' : 'PUT (Sell)';
+      const confidence = Math.floor(Math.random() * 6) + 94; // 94–99%
+      const indicators = direction.includes('CALL') ? 'RSI Oversold, EMA Support, Bullish Signal' : 'RSI Overbought, EMA Resistance, Bearish Signal';
+
+      chartFrame.src = `https://www.tradingview.com/widgetembed/?symbol=${currency}&interval=1&hidesidetoolbar=1&theme=dark&style=1`;
+      pairTitle.textContent = "EUR/USD Signal";
+      signalInfo.innerHTML = `
+        <p><span class="label">Signal:</span> <span class="${direction.includes('CALL') ? 'call' : 'put'}">${direction}</span></p>
+        <p><span class="label">Confidence:</span> ${confidence}%</p>
+        <p><span class="label">Expiry:</span> 5 minutes</p>
+        <p><span class="label">Indicators:</span> ${indicators}</p>
+      `;
+      feedbackButtons.style.display = 'block';
+    }
+
+    function submitFeedback(result) {
+      console.log(`Feedback: ${result}`);
+      feedbackButtons.style.display = 'none';
+      lastFeedbackGiven = true;
+    }
+
+    setInterval(() => {
+      if (lastFeedbackGiven) {
+        signalTimer -= 1;
+        if (signalTimer <= 0) {
+          generateSignal();
+          signalTimer = 300;
+        }
+      }
+    }, 1000);
+  </script>
+</body>
+</html>
